@@ -1,10 +1,45 @@
 :root {
+  --bg: #ffffff;
+  --surface: #ffffff;
+  --surface-2: #f3f4f6;
+  --border: #e5e7eb;
+  --input-border: #d1d5db;
+  --text: #111827;
+  --text-2: #374151;
+  --text-3: #4b5563;
+  --muted: #6b7280;
+  --overlay: rgb(255 255 255 / 0.95);
+  --link: #0a66c2;
+
   font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  color: #111827;
-  background: #fff;
+  color: var(--text);
+  background: var(--bg);
+  color-scheme: light;
   -webkit-font-smoothing: antialiased;
+}
+
+:root[data-theme='escuro'] {
+  --bg: #0b1220;
+  --surface: #111827;
+  --surface-2: #1f2937;
+  --border: #1f2937;
+  --input-border: #374151;
+  --text: #f3f4f6;
+  --text-2: #d1d5db;
+  --text-3: #9ca3af;
+  --muted: #9ca3af;
+  --overlay: rgb(17 24 39 / 0.92);
+  --link: #70b5f9;
+
+  color-scheme: dark;
 }
 
 body {
   margin: 0;
+}
+
+button,
+select,
+input {
+  color: inherit;
 }

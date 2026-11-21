@@ -59,11 +59,22 @@ export const STATUS_LABEL: Record<Status, string> = {
   sem_dados: 'Sem dados',
 }
 
-export const STATUS_COLOR: Record<Status, string> = {
-  atende: '#16a34a',
-  nao_atende: '#dc2626',
-  sem_dados: '#9ca3af',
+export type Palette = 'padrao' | 'daltonico'
+export type StatusColors = Record<Status, string>
+
+export const PALETTES: Record<Palette, { label: string; colors: StatusColors }> = {
+  padrao: {
+    label: 'Verde e vermelho',
+    colors: { atende: '#16a34a', nao_atende: '#dc2626', sem_dados: '#9ca3af' },
+  },
+  // Okabe-Ito blue/vermillion: distinguishable under protanopia, deuteranopia and tritanopia
+  daltonico: {
+    label: 'Azul e laranja (daltonismo)',
+    colors: { atende: '#0072b2', nao_atende: '#d55e00', sem_dados: '#9ca3af' },
+  },
 }
+
+export type Theme = 'claro' | 'escuro'
 
 export const UFS = [
   'AC', 'AL', 'AM', 'AP', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MG', 'MS', 'MT', 'PA', 'PB', 'PE',

@@ -1,16 +1,22 @@
 import {
   CRITERIA,
-  STATUS_COLOR,
   STATUS_LABEL,
   criterionStatus,
   formatValue,
   overallStatus,
   type Municipio,
+  type StatusColors,
 } from './criteria'
 
 const ICON = { atende: '✓', nao_atende: '✗', sem_dados: '?' } as const
 
-export function DetailPanel({ municipio, onClose }: { municipio: Municipio; onClose: () => void }) {
+interface Props {
+  municipio: Municipio
+  colors: StatusColors
+  onClose: () => void
+}
+
+export function DetailPanel({ municipio, colors, onClose }: Props) {
   const status = overallStatus(municipio)
 
   return (
@@ -21,7 +27,7 @@ export function DetailPanel({ municipio, onClose }: { municipio: Municipio; onCl
       <h2>
         {municipio.nome} <small>{municipio.uf}</small>
       </h2>
-      <span className="badge" style={{ background: STATUS_COLOR[status] }}>
+      <span className="badge" style={{ background: colors[status] }}>
         {STATUS_LABEL[status]}
       </span>
       <table>
@@ -41,7 +47,7 @@ export function DetailPanel({ municipio, onClose }: { municipio: Municipio; onCl
                 <td>{c.label}</td>
                 <td>{formatValue(c, municipio[c.key])}</td>
                 <td>{c.rule}</td>
-                <td style={{ color: STATUS_COLOR[s], fontWeight: 700 }}>{ICON[s]}</td>
+                <td style={{ color: colors[s], fontWeight: 700 }}>{ICON[s]}</td>
               </tr>
             )
           })}

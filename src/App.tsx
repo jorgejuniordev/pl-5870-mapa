@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import './App.css'
 import {
   CRITERIA,
-  STATUS_COLOR,
+  PALETTES,
   STATUS_LABEL,
   UFS,
   criterionStatus,
@@ -10,7 +10,9 @@ import {
   type CriterionKey,
   type Dataset,
   type Municipio,
+  type Palette,
   type Status,
+  type Theme,
 } from './criteria'
 import { MapView, type Mesh } from './MapView'
 import { DetailPanel } from './DetailPanel'
@@ -20,6 +22,17 @@ type StatusFilter = 'todos' | Status
 
 const normalize = (s: string) =>
   s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+
+function useStoredState<T extends string>(key: string, allowed: readonly T[], fallback: T) {
+  const [value, setValue] = useState<T>(() => {
+    const stored = localStorage.getItem(key) as T | null
+    return stored && allowed.includes(stored) ? stored : fallback
+  })
+  useEffect(() => localStorage.setItem(key, value), [key, value])
+  return [value, setValue] as const
+}
+
+const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
 
 export default function App() {
   const [data, setData] = useState<Dataset | null>(null)
@@ -32,6 +45,17 @@ export default function App() {
   const [query, setQuery] = useState('')
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [focusIds, setFocusIds] = useState<string[] | null>(null)
+  const [theme, setTheme] = useStoredState<Theme>(
+    'tema',
+    ['claro', 'escuro'],
+    prefersDark ? 'escuro' : 'claro',
+  )
+  const [palette, setPalette] = useStoredState<Palette>('paleta', ['padrao', 'daltonico'], 'padrao')
+  const colors = PALETTES[palette].colors
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme
+  }, [theme])
 
   useEffect(() => {
     Promise.all([
@@ -123,7 +147,17 @@ export default function App() {
     <div className="layout">
       <aside className="sidebar">
         <header>
-          <h1>PL 5870/2026</h1>
+          <div className="title-row">
+            <h1>PL 5870/2026</h1>
+            <button
+              className="theme-toggle"
+              onClick={() => setTheme(theme === 'claro' ? 'escuro' : 'claro')}
+              aria-label={theme === 'claro' ? 'Ativar modo escuro' : 'Ativar modo claro'}
+              title={theme === 'claro' ? 'Ativar modo escuro' : 'Ativar modo claro'}
+            >
+              {theme === 'claro' ? '☾' : '☀'}
+            </button>
+          </div>
           <p className="subtitle">
             Quais municípios poderiam contratar shows com dinheiro público pelos critérios do
             projeto de Kim Kataguiri (Missão-SP)
@@ -145,11 +179,11 @@ export default function App() {
             <button
               key={s}
               className={`counter ${statusFilter === s ? 'active' : ''}`}
-              style={{ borderColor: STATUS_COLOR[s] }}
+              style={{ borderColor: colors[s] }}
               onClick={() => setStatusFilter(statusFilter === s ? 'todos' : s)}
               title="Clique para destacar só esse grupo no mapa"
             >
-              <span className="counter-value" style={{ color: STATUS_COLOR[s] }}>
+              <span className="counter-value" style={{ color: colors[s] }}>
                 {counts[s].toLocaleString('pt-BR')}
               </span>
               <span className="counter-label">{STATUS_LABEL[s]}</span>
@@ -168,6 +202,17 @@ export default function App() {
               {CRITERIA.map((c) => (
                 <option key={c.key} value={c.key}>
                   {c.label} ({c.rule})
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label>
+            Cores do mapa
+            <select value={palette} onChange={(e) => setPalette(e.target.value as Palette)}>
+              {(Object.keys(PALETTES) as Palette[]).map((p) => (
+                <option key={p} value={p}>
+                  {PALETTES[p].label}
                 </option>
               ))}
             </select>
@@ -197,7 +242,7 @@ export default function App() {
                 {searchResults.map((m) => (
                   <li key={m.id}>
                     <button onClick={() => selectMunicipio(m.id)}>
-                      <span className="dot" style={{ background: STATUS_COLOR[overallStatus(m)] }} />
+                      <span className="dot" style={{ background: colors[overallStatus(m)] }} />
                       {m.nome} <small>{m.uf}</small>
                     </button>
                   </li>
@@ -219,7 +264,13 @@ export default function App() {
                   <span>{fails.toLocaleString('pt-BR')}</span>
                 </div>
                 <div className="bar-track">
-                  <div className="bar-fill" style={{ width: `${total ? (fails / total) * 100 : 0}%` }} />
+                  <div
+                    className="bar-fill"
+                    style={{
+                      width: `${total ? (fails / total) * 100 : 0}%`,
+                      background: colors.nao_atende,
+                    }}
+                  />
                 </div>
               </li>
             ))}
@@ -268,17 +319,21 @@ export default function App() {
           visibleIds={visibleIds}
           focusIds={focusIds}
           selectedId={selectedId}
+          colors={colors}
+          theme={theme}
           onSelect={setSelectedId}
         />
         <div className="legend">
           {(['atende', 'nao_atende', 'sem_dados'] as Status[]).map((s) => (
             <span key={s}>
-              <span className="dot" style={{ background: STATUS_COLOR[s] }} />
+              <span className="dot" style={{ background: colors[s] }} />
               {STATUS_LABEL[s]}
             </span>
           ))}
         </div>
-        {selected && <DetailPanel municipio={selected} onClose={() => setSelectedId(null)} />}
+        {selected && (
+          <DetailPanel municipio={selected} colors={colors} onClose={() => setSelectedId(null)} />
+        )}
       </main>
     </div>
   )
