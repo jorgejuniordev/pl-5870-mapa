@@ -33,3 +33,7 @@ npm run data
 
 Baixa os indicadores das fontes oficiais e gera `public/data/indicadores.json` e
 `public/data/municipios.geojson`.
+
+## Autor
+
+Feito por [Jorge Souza](https://www.linkedin.com/in/jorgejuniordeveloper/).

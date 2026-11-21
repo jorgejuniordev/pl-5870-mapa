@@ -128,6 +128,16 @@ export default function App() {
             Quais municípios poderiam contratar shows com dinheiro público pelos critérios do
             projeto de Kim Kataguiri (Missão-SP)
           </p>
+          <p className="credit">
+            Feito por{' '}
+            <a
+              href="https://www.linkedin.com/in/jorgejuniordeveloper/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Jorge Souza
+            </a>
+          </p>
         </header>
 
         <section className="counters">
